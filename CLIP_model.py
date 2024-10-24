@@ -1,9 +1,46 @@
 import timm
+import torch
 from torch import nn
+import torch.nn.functional as F
+from transformers import DistilBertTokenizer, DistilBertModel, DistilBertConfig
 
-from transformers import DistilBertModel, DistilBertConfig
-from transformers import DistilBertTokenizer
+class CLIP(nn.Module):
+    def __init__(self, config):
+        super().__init__()
+        self.temperature = config["temperature"]
+        self.image_embedding = config["image_embedding"]
+        self.text_embedding = config["text_embedding"]
 
+        self.image_projection = ProjectionHead(config, embedding_dim=self.image_embedding)
+        self.text_projection = ProjectionHead(config, embedding_dim=self.text_embedding)
+        self.temperature = self.temperature
+
+    def forward(self, sources, targets):
+        # Getting Image and Text Embeddings (with same dimension)
+        image_embeddings = self.image_projection(sources)    ## Project embeddings to 256 dimension space, shape: (batch_size, 256)
+        text_embeddings = self.text_projection(targets)      ## Project embeddings to 256 dimension space, shape: (batch_size, 256)
+
+        # Calculating the Loss
+        logits = (text_embeddings @ image_embeddings.T) / self.temperature
+        images_similarity = image_embeddings @ image_embeddings.T
+        texts_similarity = text_embeddings @ text_embeddings.T
+        targets = F.softmax(
+            (images_similarity + texts_similarity) / 2 * self.temperature, dim=-1
+        )
+        texts_loss = cross_entropy(logits, targets, reduction='none')
+        images_loss = cross_entropy(logits.T, targets.T, reduction='none')
+        loss =  (images_loss + texts_loss) / 2.0 # shape: (batch_size)
+        return loss.mean()
+
+# Cross Entropy Loss implementation from scratch
+def cross_entropy(preds, targets, reduction='none'):
+    log_softmax = nn.LogSoftmax(dim=-1)
+    loss = (-targets * log_softmax(preds)).sum(1)
+    if reduction == "none":
+        return loss
+    elif reduction == "mean":
+        return loss.mean()
+    
 class ImageEncoder(nn.Module):
     """
     Encode images to a fixed size vector
@@ -23,7 +60,6 @@ class ImageEncoder(nn.Module):
     def forward(self, x):
         return self.model(x)
     
-
 class TextEncoder(nn.Module):
     def __init__(self, config):
         super().__init__()
@@ -59,6 +95,17 @@ class TextEncoder(nn.Module):
         output = self.model(input_ids=input_ids, attention_mask=attention_mask)
         last_hidden_state = output.last_hidden_state
         return last_hidden_state[:, self.target_token_idx, :]  ## Output is shape (batch_size, hidden_size)
+    
+    def decode(self, encoded_ids):
+        # Remove any padding tokens
+        if isinstance(encoded_ids, torch.Tensor):
+            encoded_ids = encoded_ids.cpu().numpy()
+            
+        # Remove special tokens and decode
+        decoded_text = self.tokenizer.decode(encoded_ids, 
+                                           skip_special_tokens=True,
+                                           clean_up_tokenization_spaces=True)
+        return decoded_text
     
 class ProjectionHead(nn.Module):
     def __init__(self, config, embedding_dim):

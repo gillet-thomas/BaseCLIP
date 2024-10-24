@@ -6,27 +6,26 @@ import glob
 import yaml
 import torch
 import pydicom
+import pickle
 import numpy as np
-import albumentations as A
-import torch.utils.data
 from tqdm import tqdm
 
-from Encoders import ImageEncoder, TextEncoder
+import torch as nn
+from torch.utils.data import Dataset
+from CLIP_model import ImageEncoder, TextEncoder
 
-
-class CLIPDataset(torch.utils.data.Dataset):
-    def __init__(self, config, transforms):
+class MIMIC(Dataset):
+    def __init__(self, config, mode='train'):
         """
         image_filenames and captions must have the same length; so, if there are
         multiple captions for each image, the image_filenames must have repetitive file names
         """
 
         self.config = config
-        self.transforms = transforms
         self.device = config['device']
         self.folder_path = config['folder_path']
         self.batch_size = config['batch_size']
-        self.batch_size = 4
+        self.data_limit = config['data_limit']
 
         self.image_encoder = ImageEncoder(config).to(self.device)
         self.text_encoder = TextEncoder(config).to(self.device)
@@ -34,15 +33,20 @@ class CLIPDataset(torch.utils.data.Dataset):
         self.image_encoder.eval()
         self.text_encoder.eval()
 
-        self.data = self.get_data()     ## 36681 pairs of size (1, 2048) and (1, 768)
-        self.train_data, self.test_data = torch.utils.data.random_split(self.data, [0.8, 0.2])
-        
+        data = self.get_data()     ## 36681 pairs of size (1, 2048) and (1, 768)
+        self.train_data, self.val_data = torch.utils.data.random_split(data, [0.8, 0.2])
+        self.data = self.train_data if mode == 'train' else self.val_data
+
+        with open('data.pickle', 'wb') as f:
+            pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
     
+        print("Data initialized and saved to data.pickle")
+        
     def get_data(self):
         report_mri_pairs = []
         reports_paths = self.get_all_txt_files(self.folder_path)
 
-        for report in tqdm(reports_paths[:100]):
+        for report in tqdm(reports_paths[:self.data_limit]):
             
             # Get report label and encode it
             label = self.file_labelling(report)
@@ -63,7 +67,7 @@ class CLIPDataset(torch.utils.data.Dataset):
                     encoded_image = self.image_encoder(mri_image)  ## (1, 2048) shape
 
                 # Store tensors on CPU to save GPU memory
-                report_mri_pairs.append(encoded_image.cpu(), encoded_label.cpu())
+                report_mri_pairs.append((encoded_image.squeeze(0).cpu(), encoded_label.squeeze(0).cpu(), mri_path, label))
 
         return report_mri_pairs            
 
@@ -129,31 +133,15 @@ class CLIPDataset(torch.utils.data.Dataset):
         return image
     
     def __getitem__(self, idx):
-        return self.data[idx][0], self.data[idx][1]
+        return self.data[idx][0], self.data[idx][1], self.data[idx][2], self.data[idx][3]
 
     def __len__(self):
         return len(self.data) // self.batch_size
-    
-    def get_transforms(self, mode="train"):
-        if mode == "train":
-            return A.Compose(
-                [
-                    A.Resize(self.config.size, self.config.size, always_apply=True),
-                    A.Normalize(max_pixel_value=255.0, always_apply=True),
-                ]
-            )
-        else:
-            return A.Compose(
-                [
-                    A.Resize(self.config.size, self.config.size, always_apply=True),
-                    A.Normalize(max_pixel_value=255.0, always_apply=True),
-                ]
-            )
     
 if __name__ == "__main__": 
     config = yaml.safe_load(open("./config.yaml"))
     config["device"] = 'cuda:3' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available else 'cpu'
 
-    dataset = CLIPDataset(config, None)
+    dataset = MIMIC(config)
     image, label = dataset[0]
     print(image.shape, label.shape)
