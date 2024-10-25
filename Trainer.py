@@ -24,7 +24,7 @@ class Trainer():
             self.train(epoch)
             self.validate(epoch)
 
-        torch.save(self.model.state_dict(), f'./CLIP_model.pth')
+        torch.save(self.model.state_dict(), './CLIP_model.pth')
         print("Model saved to ./CLIP_model.pth")
 
 
@@ -46,7 +46,7 @@ class Trainer():
 
             running_loss += loss.item()
 
-            if i % eval_interval == 0 or i == len(self.dataloader) - 1:
+            if i != 0 and i % eval_interval == 0:
                 print(f"Epoch {epoch}, Batch {i}: train loss {running_loss/eval_interval}")
                 wandb.log({"epoch": epoch, "batch": i, "train loss": running_loss/eval_interval})
                 running_loss = 0.0

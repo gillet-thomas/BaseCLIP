@@ -58,6 +58,9 @@ class ImageEncoder(nn.Module):
             p.requires_grad = self.trainable
 
     def forward(self, x):
+        # # Get embedding and normalize
+        # image_emb = self.model.image_projection(image_tensor)
+        # image_emb = image_emb / image_emb.norm(dim=-1, keepdim=True)
         return self.model(x)
     
 class TextEncoder(nn.Module):

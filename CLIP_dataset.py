@@ -25,7 +25,6 @@ class MIMIC(Dataset):
         self.device = config['device']
         self.folder_path = config['folder_path']
         self.batch_size = config['batch_size']
-        self.data_limit = config['data_limit']
 
         self.image_encoder = ImageEncoder(config).to(self.device)
         self.text_encoder = TextEncoder(config).to(self.device)
@@ -33,20 +32,20 @@ class MIMIC(Dataset):
         self.image_encoder.eval()
         self.text_encoder.eval()
 
-        data = self.get_data()     ## 36681 pairs of size (1, 2048) and (1, 768)
-        self.train_data, self.val_data = torch.utils.data.random_split(data, [0.8, 0.2])
-        self.data = self.train_data if mode == 'train' else self.val_data
+        # data = self.get_data()
+        # pickle.dump(data, file, protocol=pickle.HIGHEST_PROTOCOL)
+        file = open('data.pickle', 'rb')
+        data = pickle.load(file)                                                              ## 36681 pairs
+        self.train_data, self.val_data = torch.utils.data.random_split(data, [0.8, 0.2])      ## 29345 train, 7336 val
 
-        with open('data.pickle', 'wb') as f:
-            pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
-    
-        print("Data initialized and saved to data.pickle")
+        self.data = self.train_data if mode == 'train' else self.val_data
+        print("Data initialized")
         
     def get_data(self):
         report_mri_pairs = []
         reports_paths = self.get_all_txt_files(self.folder_path)
 
-        for report in tqdm(reports_paths[:self.data_limit]):
+        for report in tqdm(reports_paths):
             
             # Get report label and encode it
             label = self.file_labelling(report)

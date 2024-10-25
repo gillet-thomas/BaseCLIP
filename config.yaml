@@ -1,15 +1,14 @@
 # Global
 folder_path: '/mnt/data/iai/datasets/xray/mimic-cxr-2.0.0.physionet.org/files/p10/'
-training_enabled: True
-wandb_enabled: True
+training_enabled: False
+wandb_enabled: False
 
 # Training
 seed: 42
-epochs: 5
-data_limit: 1000
+epochs: 10
 dropout: 0.1
 batch_size: 32
-eval_interval: 10
+eval_interval: 100
 learning_rate: 0.001
 
 # CLIP model
