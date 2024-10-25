@@ -13,7 +13,7 @@ import torch
 from torch.utils.data import Dataset
 from src.CLIP_model import ImageEncoder, TextEncoder
 
-class MIMIC(Dataset):
+class MIMICDataset(Dataset):
     def __init__(self, config, mode='train'):
         self.config = config
         self.device = config['device']
