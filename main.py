@@ -6,9 +6,6 @@ import torch
 from CLIP_model import CLIP
 from CLIP_dataset import MIMIC
 from Trainer import Trainer
-
-from CLIP_inference import CLIPInference
-from CLIP_inf import CLIPInferenceLatentSpace
 from CLIPRetrieval import CLIPRetrieval
 
 if __name__ == "__main__":
