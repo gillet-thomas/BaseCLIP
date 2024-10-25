@@ -1,5 +1,5 @@
 # Global
-folder_path: '/mnt/data/iai/datasets/xray/mimic-cxr-2.0.0.physionet.org/files/p10/'
+folder_path: '/mnt/data/iai/datasets/xray/mimic-cxr-2.0.0.physionet.org/files/'
 training_enabled: False
 wandb_enabled: False
 

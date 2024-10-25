@@ -4,23 +4,17 @@ import re
 import cv2
 import glob
 import yaml
-import torch
 import pydicom
 import pickle
 import numpy as np
 from tqdm import tqdm
 
-import torch as nn
+import torch
 from torch.utils.data import Dataset
-from CLIP_model import ImageEncoder, TextEncoder
+from src.CLIP_model import ImageEncoder, TextEncoder
 
 class MIMIC(Dataset):
     def __init__(self, config, mode='train'):
-        """
-        image_filenames and captions must have the same length; so, if there are
-        multiple captions for each image, the image_filenames must have repetitive file names
-        """
-
         self.config = config
         self.device = config['device']
         self.folder_path = config['folder_path']
@@ -34,7 +28,7 @@ class MIMIC(Dataset):
 
         # data = self.get_data()
         # pickle.dump(data, file, protocol=pickle.HIGHEST_PROTOCOL)
-        file = open('data.pickle', 'rb')
+        file = open('./src/data/data_p10.pickle', 'rb')
         data = pickle.load(file)                                                              ## 36681 pairs
         self.train_data, self.val_data = torch.utils.data.random_split(data, [0.8, 0.2])      ## 29345 train, 7336 val
 
@@ -136,11 +130,3 @@ class MIMIC(Dataset):
 
     def __len__(self):
         return len(self.data) // self.batch_size
-    
-if __name__ == "__main__": 
-    config = yaml.safe_load(open("./config.yaml"))
-    config["device"] = 'cuda:3' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available else 'cpu'
-
-    dataset = MIMIC(config)
-    image, label = dataset[0]
-    print(image.shape, label.shape)
