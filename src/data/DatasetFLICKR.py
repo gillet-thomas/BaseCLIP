@@ -19,6 +19,7 @@ class Flickr8kDataset(Dataset):
         self.device = config["device"]
         self.batch_size = config["batch_size"]
         self.dataset_path = config["dataset_flickr"]
+        self.dataset_pickle = config["dataset_flickr_pickle"]
         self.generate_data = generate_data
 
         # Define data augmentations
@@ -59,7 +60,7 @@ class Flickr8kDataset(Dataset):
 
     def get_data(self):
         # Read captions file
-        captions_path = os.path.join("src", "data", "captions.txt")
+        captions_path = os.path.join(self.dataset_path, "captions.txt")
         df = pd.read_csv(captions_path, header=None, names=["image", "caption"])
 
         # Group captions by image
@@ -69,7 +70,7 @@ class Flickr8kDataset(Dataset):
 
         # Encode images and captions
         encoded_data_pairs = []
-        images_path = os.path.join("src", "data", "Images")
+        images_path = os.path.join(self.dataset_path, "Images")
         for image_name, captions in tqdm(image_captions.items()):
             image_path = os.path.join(images_path, image_name)
 

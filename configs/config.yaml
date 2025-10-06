@@ -1,12 +1,13 @@
 # Global
 output_dir: './results'
-generate_data: False
-training_enabled: False
-wandb_enabled: False
+generate_data: True
+training_enabled: True
+wandb_enabled: True
 
 # Dataset
 dataset_name: "FLICKR"
-dataset_flickr: './src/data/DatasetFLICKR/CLIP_FLICKR_base.pickle'
+dataset_flickr: './src/data/DatasetFLICKR/'
+dataset_flickr_pickle: './src/data/DatasetFLICKR/CLIP_FLICKR_base.pickle'
 dataset_abcde: 'src/data/abcde/resampled/*.nii'
 dataset_imagenet_labels: './src/data/IMAGENET_labels.json'
 
