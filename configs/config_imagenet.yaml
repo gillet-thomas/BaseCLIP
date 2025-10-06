@@ -5,22 +5,22 @@ training_enabled: False
 wandb_enabled: False
 
 # Dataset
-dataset_name: "FLICKR"
+dataset_name: "IMAGENET"
 dataset_flickr: './src/data/DatasetFLICKR/CLIP_FLICKR_base.pickle'
-dataset_abcde: 'src/data/abcde/resampled/*.nii'
-dataset_imagenet_labels: './src/data/IMAGENET_labels.json'
+data_dir: '/mnt/data/iai/datasets/xray/mimic-cxr-2.0.0.physionet.org/files/'
 
 # Training
 seed: 42
 learning_rate: 0.0002
-epochs: 100
-batch_size: 64             # Test with 32
+epochs: 5
+batch_size: 1024
 weight_decay: 0.1
+iterations_per_epoch: 500
 val_interval: 20           ## Validation every 100 iterations
 
 # CLIP model
 projection_dim: 1024
-image_encoder: 'resnet50'   # vit_base_patch16_224
+image_encoder: 'resnet50'
 image_embedding: 2048
 text_encoder: "distilbert-base-uncased"
 text_embedding: 768
