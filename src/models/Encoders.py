@@ -2,8 +2,7 @@ import timm
 import torch
 import torch.nn as nn
 import torchvision.models as models
-from transformers import (AutoModelForCausalLM, AutoTokenizer, DistilBertModel,
-                          DistilBertTokenizer)
+from transformers import AutoModelForCausalLM, AutoTokenizer, DistilBertModel, DistilBertTokenizer
 
 
 class ImageEncoder(nn.Module):
