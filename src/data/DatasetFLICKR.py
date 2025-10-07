@@ -48,7 +48,7 @@ class Flickr8kDataset(Dataset):
             data = self.get_data()
 
         # Load and split data
-        with open(self.dataset_path, "rb") as file:
+        with open(self.dataset_pickle, "rb") as file:
             data = pickle.load(file)
 
         # Take only 20% of data
@@ -62,6 +62,8 @@ class Flickr8kDataset(Dataset):
         # Read captions file
         captions_path = os.path.join(self.dataset_path, "captions.txt")
         df = pd.read_csv(captions_path, header=None, names=["image", "caption"])
+
+        # df = df[:int(0.1*len(df))]
 
         # Group captions by image
         image_captions = defaultdict(list)
@@ -94,8 +96,8 @@ class Flickr8kDataset(Dataset):
                 (encoded_image.squeeze(0).cpu(), encoded_captions.squeeze(0).cpu(), image_path, combined_caption)
             )
 
-        with open(self.dataset_path, "rb") as file:
-            pickle.dump(data, file, protocol=pickle.HIGHEST_PROTOCOL)
+        with open(self.dataset_pickle, "wb") as file:
+            pickle.dump(encoded_data_pairs, file, protocol=pickle.HIGHEST_PROTOCOL)
 
         return encoded_data_pairs
 

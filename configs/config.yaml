@@ -1,7 +1,6 @@
 # Global
 output_dir: './results'
-generate_data: True
-training_enabled: True
+generate_data: False
 wandb_enabled: True
 
 # Dataset

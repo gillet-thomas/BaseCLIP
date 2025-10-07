@@ -33,24 +33,24 @@ CLIP uses a **contrastive loss** that **maximizes the cosine similarity** betwee
 ## 📁 Project Structure
 
 ```
-main.py                        # Entry point for training/inference
-configs/config.yaml            # Main config (datasets, encoders, heads, training params)
-
-src/
- ├── Trainer.py                # AMP-enabled training with WandB logging
- ├── models/
- │    ├── CLIP_model.py        # Projection heads + contrastive CLIP loss
- │    ├── Encoders.py          # Image/Text encoders (timm, DistilBERT, etc.)
- │    ├── CLIP_retrieval.py    # Retrieval (Flickr)
- │    └── CLIP_retrievalIN.py  # Retrieval (ImageNet)
- └── data/
-      ├── DatasetFLICKR.py     # Flickr8k pairs
-      ├── DatasetImageNet.py   # ImageNet embeddings
-      ├── DatasetABCDE.py      # fMRI/sMRI + behavioral data (pain scores)
-      └── DatasetABCDETime.py  # Temporal variant (optional)
-
-results/                       # Model checkpoints
-wandb/                         # WandB metadata
+CLIPBase/
+├── configs/
+│   └── config.yaml           # Main config (datasets, encoders, heads, training params)
+├── src/
+│   ├── Trainer.py            # AMP-enabled training with WandB logging
+│   ├── models/
+│   │   ├── CLIP_model.py     # Projection heads + contrastive CLIP loss
+│   │   ├── Encoders.py       # Image/Text encoders (timm, DistilBERT, etc.)
+│   │   ├── CLIP_retrieval.py     # Retrieval (Flickr)
+│   │   └── CLIP_retrievalIN.py   # Retrieval (ImageNet)
+│   └── data/
+│       ├── DatasetFLICKR.py      # Flickr8k pairs
+│       ├── DatasetImageNet.py    # ImageNet embeddings
+│       ├── DatasetABCDE.py       # fMRI/sMRI + behavioral data (pain scores)
+│       └── DatasetABCDETime.py   # Temporal variant (optional)
+├── results/                  # Model checkpoints
+├── wandb/                    # WandB metadata
+└── main.py                   # Entry point for training/inference
 ```
 
 ---
@@ -103,6 +103,7 @@ Set in `configs/config.yaml`:
 - `dataset_name: "FLICKR"`
 - `dataset_flickr`: path to Flickr root (`Images/` and `captions.txt`)
 - `dataset_flickr_pickle`: optional cache for precomputed embeddings
+- Encoders: `resnet50` (2D CNN), `distilbert` (Text encoder), `Qwen2.5-1.5B-Instruct`(Text summarizer).
 
 Expected layout:
 ```

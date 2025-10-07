@@ -310,5 +310,5 @@ class CLIPRetrieval:
         #     print(f"{i+1}. Image {idx} with normalized sim {sim:.2f} - {norm_score:.2f}% - {eval_result}.\n   Label: {label}")
 
         # Create and save image-to-image plot
-        text2img_plot = self.create_retrieval_plot(sample_path, query_label, similar_texts, "FREEQUERY92")
+        text2img_plot = self.create_retrieval_plot(sample_path, query_label, similar_texts, "FREEQUERY")
         print(f"Text-to-Image retrieval plot saved to: {text2img_plot}")
