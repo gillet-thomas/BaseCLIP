@@ -1,6 +1,6 @@
 # Global
 output_dir: './results'
-generate_data: False
+generate_data: True
 wandb_enabled: True
 
 # Dataset
@@ -12,10 +12,10 @@ dataset_imagenet_labels: './src/data/IMAGENET_labels.json'
 
 # Training
 seed: 42
-learning_rate: 0.0002
+learning_rate: 0.0003
 epochs: 100
-batch_size: 64             # Test with 32
-weight_decay: 0.1
+batch_size: 128             # Test with 32
+weight_decay: 0.2
 val_interval: 20           ## Validation every 100 iterations
 
 # CLIP model

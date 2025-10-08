@@ -70,7 +70,7 @@ if __name__ == "__main__":
     config = get_config(args)
 
     wandb.init(
-        project="CLIP_MIMIC_CXR",
+        project="BaseCLIP",
         mode="online" if config["wandb_enabled"] else "disabled",
         config=config,
         name=config["name"],
